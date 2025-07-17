@@ -84,7 +84,7 @@ export default function App() {
         }}
         resizeMode="cover"
         source={require('@src/assets/jsons/animation.json')}
-        onAnimationFinish={() => console.log('fas')}
+        onAnimationFinish={() => router.navigate('/(auth)/onboarding')}
         loop={false}
       />
     </View>
