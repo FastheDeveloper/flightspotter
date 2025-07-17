@@ -7,6 +7,48 @@
     "paths": {
       "~/*": [
         "*"
+      ],
+        "@src/*": [
+        "/src/*"
+      ],
+      "@app/*": [
+        "/src/app/*"
+      ],
+      "@constants/*": [
+        "./src/constants/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+      "@types/*": [
+        "./src/types/*"
+      ],
+      "@contexts/*": [
+        "./src/contexts/*"
+      ],
+      "@services/*": [
+        "./src/services/*"
+      ],
+      "@styles/*": [
+        "./src/styles/*"
+      ],
+      "@providers/*": [
+        "./src/providers/*"
+      ],
+      "@realtimeDatabase/*": [
+        "./src/realtimeDatabase/*"
+      ],
+      "@store/*": [
+        "./src/store/*"
+      ],
+      "@assets/*": [
+        "./assets/*"
       ]
     }
   },
