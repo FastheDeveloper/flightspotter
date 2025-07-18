@@ -1,22 +1,17 @@
-import { useRef, useEffect, useCallback } from 'react';
-import { Button, StyleSheet, View } from 'react-native';
+import { useRef, useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import LottieView from 'lottie-react-native';
-import { Redirect, router, Stack, useFocusEffect } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { FONT_NAMES } from '@constants/fontNames';
-import { getValueFor } from '@utils/secureStorage';
-// import { STORAGE_KEYS } from "../constants/asyncKeys";
-STORAGE_KEYS;
-import * as SplashScreen from 'expo-splash-screen';
-// import { useAuth } from "../providers/AuthProvider";
 import { STORAGE_KEYS } from '@constants/asyncKeys';
-
-// SplashScreen.preventAutoHideAsync();
+import { getValueFor } from '@utils/secureStorage';
+import { useAuth } from '~/src/hooks/useAuth';
 
 export default function App() {
   const animation = useRef<LottieView>(null);
-  //   const { isAuthenticated } = useAuth();
-  const [fontsLoaded, fontError] = useFonts({
+  const { session, isReady } = useAuth();
+  const [fontsLoaded] = useFonts({
     [FONT_NAMES.POPPINS_REGULAR]: require('@src/assets/fonts/Poppins-Regular.ttf'),
     [FONT_NAMES.POPPINS_MEDIUM]: require('@src/assets/fonts/Poppins-Medium.ttf'),
     [FONT_NAMES.POPPINS_SEMIBOLD]: require('@src/assets/fonts/Poppins-SemiBold.ttf'),
@@ -25,66 +20,49 @@ export default function App() {
     [FONT_NAMES.POPPINS_BLACK]: require('@src/assets/fonts/Poppins-Black.ttf'),
   });
 
+  const [hasNavigated, setHasNavigated] = useState(false);
+
   const checkOnboardingStatus = async () => {
     try {
-      const hasLaunchedOnboarding = await getValueFor(STORAGE_KEYS.HAS_APP_BEEN_USED);
-      return hasLaunchedOnboarding != null;
-    } catch (error) {
-      console.error('Error checking onboarding status:', error);
+      const hasLaunched = await getValueFor(STORAGE_KEYS.HAS_APP_BEEN_USED);
+      return !!hasLaunched;
+    } catch {
       return false;
     }
   };
 
   useEffect(() => {
-    // You can control the ref programmatically, rather than using autoPlay
-    setTimeout(() => {
+    // Wait until fonts and auth are ready
+    if (!isReady || !fontsLoaded || hasNavigated) return;
+
+    const proceed = async () => {
       animation.current?.play();
-    }, 1000);
-  }, []);
 
-  //   const handleSplashScreen = async () => {
-  //     console.log("DONE HERE");
-  //     const appIsReady = true;
-  //     if (appIsReady) {
-  //       const isOnBoardingCompleted = await checkOnboardingStatus();
+      const hasUsedApp = await checkOnboardingStatus();
 
-  //       if (!isOnBoardingCompleted) {
-  //         // await new Promise((resolve) => setTimeout(resolve, 3000));
+      setTimeout(() => {
+        if (!hasUsedApp) {
+          router.replace('/(auth)/onboarding');
+        } else if (session) {
+          router.replace('/(tabs)');
+        } else {
+          router.replace('/(auth)/login');
+        }
+        setHasNavigated(true);
+      }, 1000); // Let animation play out a bit before navigating
+    };
 
-  //         router.replace("/onboarding");
-  //         console.log("====================================");
-  //         console.log(".onboard");
-  //         console.log("====================================");
-  //       } else if (isAuthenticated) {
-  //         // await new Promise((resolve) => setTimeout(resolve, 3000));
-  //         router.replace("/(protected)/(tabs)");
-  //         console.log("====================================");
-  //         console.log(".yabs");
-  //         console.log("====================================");
-  //         // return <Redirect hre
-  //         // f={"/(protected)/(tabs)"} />;
-  //       } else {
-  //         // Default navigation if no URL is passed
-  //         router.replace("/(auth)/signin");
-
-  //         // return <Redirect href={"/(auth)/signin"} />;
-  //       }
-  //     }
-  //   };
+    proceed();
+  }, [isReady, fontsLoaded]);
 
   return (
     <View style={styles.animationContainer}>
       <Stack.Screen options={{ headerShown: false }} />
       <LottieView
         ref={animation}
-        style={{
-          width: '100%',
-          height: '100%',
-          backgroundColor: '#eee',
-        }}
+        style={{ width: '100%', height: '100%', backgroundColor: '#eee' }}
         resizeMode="cover"
         source={require('@src/assets/jsons/animation.json')}
-        onAnimationFinish={() => router.navigate('/(auth)/onboarding')}
         loop={false}
       />
     </View>
@@ -97,8 +75,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
-  },
-  buttonContainer: {
-    paddingTop: 20,
   },
 });
