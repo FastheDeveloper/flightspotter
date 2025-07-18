@@ -1,13 +1,14 @@
-// screens/auth/SignUp.tsx
+// screens/auth/Login.tsx
 import { View, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import KeyboardAvoidingScroll from '~/src/components/KeyboardAvoidingScroll/KeyboardAvoidingScroll';
 import { Divider } from '~/src/components/Divider/Divider';
 import AppText from '~/src/components/AppText/AppText';
-import SignUpForm from '~/src/components/forms/SignUpForm';
-import { router } from 'expo-router';
 
-const SignUp = () => {
+import { router } from 'expo-router';
+import LoginForm from '~/src/components/forms/LoginForm';
+
+const Login = () => {
   const { height } = Dimensions.get('window');
   const insets = useSafeAreaInsets();
 
@@ -19,15 +20,15 @@ const SignUp = () => {
             {/* Logo can go here */}
           </View>
 
-          <AppText header>Let's create your account</AppText>
+          <AppText header>Welcome back</AppText>
           <Divider height={height > 650 ? 40 : 20} />
 
-          <SignUpForm />
+          <LoginForm />
         </View>
 
         <View className="mb-6 items-center">
-          <AppText indicator onPress={() => router.replace('/(auth)/login')}>
-            Already have an account? <AppText link>Log in</AppText>
+          <AppText indicator onPress={() => router.replace('/(auth)/signUp')}>
+            Don’t have an account? <AppText link>Sign up</AppText>
           </AppText>
         </View>
       </View>
@@ -35,4 +36,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default Login;
