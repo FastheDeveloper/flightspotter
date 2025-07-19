@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   spacer: {
-    flex: 1, // takes up the remaining space
+    // flex: 1, // takes up the remaining space
   },
   footerContent: {
     padding: 16, // adjust padding as needed

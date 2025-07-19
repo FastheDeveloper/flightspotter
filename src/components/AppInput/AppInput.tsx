@@ -25,6 +25,8 @@ export interface BaseInputProps extends TextInputProps {
   rightIcon?: ReactNode;
   customShowIcon?: ReactNode; // e.g. <FasIcon />
   customHideIcon?: ReactNode;
+  inputClassName?: string;
+  labelClassname?: string;
 }
 
 const BaseInput = forwardRef<TextInput, BaseInputProps>(
@@ -50,6 +52,8 @@ const BaseInput = forwardRef<TextInput, BaseInputProps>(
       rightIcon,
       customShowIcon, // e.g. <FasIcon />
       customHideIcon,
+      inputClassName,
+      labelClassname,
       ...rest
     },
     ref
@@ -93,7 +97,12 @@ const BaseInput = forwardRef<TextInput, BaseInputProps>(
     return (
       <View className="mb-4 flex flex-col">
         {label && (
-          <Text className="font-POPPINS_SEMIBOLD text-APP_TEXT mb-2 text-base">{label}</Text>
+          <AppText
+            className={[`font-POPPINS_SEMIBOLD text-APP_TEXT mb-2 text-base`, labelClassname].join(
+              ' '
+            )}>
+            {label}
+          </AppText>
         )}
 
         <View className="relative">
@@ -123,6 +132,7 @@ const BaseInput = forwardRef<TextInput, BaseInputProps>(
               multiline ? 'text-top min-h-[200px]' : 'min-h-[48px]',
               showBorder,
               showTextColor,
+              inputClassName,
             ].join(' ')}
           />
           {passwordToggle && secureTextEntry ? (
