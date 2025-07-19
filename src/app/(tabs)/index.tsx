@@ -41,15 +41,20 @@ export default function HomeScreen() {
   const [returnDate, setReturnDate] = useState<Date | null>(null);
   const [isFromPressed, setIsFromPressed] = useState(false);
   const [isOneWay, setIsOneWay] = useState(true);
-
+  const [serchingFlights, setSearchingFlight] = useState(false);
   const { location, errorMsg } = useCurrentLocation();
   const { place } = useReverseGeocoding(location?.lat ?? null, location?.lng ?? null);
 
   const handleFlightSearch = () => {
-    if (!from || !to || !departureDate) {
-      Alert.alert('Missing Fields', 'Please fill in all required fields.');
-      return;
-    }
+    setSearchingFlight(true);
+    // if (!from || !to || !departureDate) {
+    //   Alert.alert('Missing Fields', 'Please fill in all required fields.');
+    //   return;
+    // }
+    setTimeout(() => {
+      setSearchingFlight(false);
+      router.navigate('/FlightSearch');
+    }, 3000);
     console.log('Searching flights with:', { from, to, departureDate, returnDate });
   };
 
@@ -210,6 +215,7 @@ export default function HomeScreen() {
             rightIcon={<BigPlane color="white" width={24} height={24} />}
             className="my-6 rounded-3xl"
             onPress={handleFlightSearch}
+            loading={serchingFlights}
           />
         </View>
 

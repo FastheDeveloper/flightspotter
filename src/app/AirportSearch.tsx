@@ -10,6 +10,7 @@ import { APP_COLOR } from '../constants/Colors';
 import AppInput from '../components/AppInput/AppInput';
 import SearchIcon from '../assets/svgs/Searchicon';
 import { Divider } from '../components/Divider/Divider';
+import { router } from 'expo-router';
 
 const AirportSearch = () => {
   const [origin, setOrigin] = useState('JFK');
@@ -20,7 +21,7 @@ const AirportSearch = () => {
       <View className="flex-row items-center justify-between ">
         <View className="flex-1 flex-row items-center justify-evenly  ">
           <View className="rounded-3xl border border-gray-300 bg-white p-4">
-            <CloseIcon width={16} height={13} />
+            <CloseIcon width={16} height={13} onPress={() => router.back()} />
           </View>
           <View>
             <AppText header className={origin ? `text-sm text-gray-400` : `text-lg`}>
