@@ -25,9 +25,7 @@ export const useReverseGeocoding = (lat: number | null, lng: number | null) => {
 
             try {
                 const results = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lng });
-                console.log('======res==============================');
-                console.log(results);
-                console.log('====================================');
+
                 if (results.length > 0) {
                     const locationData = results[0];
                     setPlace({

@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Link, Redirect, Tabs } from 'expo-router';
 import { HeaderButton } from '../../components/HeaderButton';
 import { TabBarIcon } from '../../components/TabBarIcon';

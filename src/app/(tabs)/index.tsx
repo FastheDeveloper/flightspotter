@@ -1,4 +1,4 @@
-import { router, Stack } from 'expo-router';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   Alert,
@@ -16,7 +16,6 @@ import AppInput from '~/src/components/AppInput/AppInput';
 import FlightDatePicker from '~/src/components/DynamicDatePicter';
 import { useCurrentLocation } from '~/src/hooks/useCurrentLocation';
 import { useReverseGeocoding } from '~/src/hooks/useReverseGeocoding';
-import { useAuth } from '~/src/contexts/AuthContext';
 
 import NotiIcons from '~/src/assets/svgs/Notification';
 import CalenderIcon from '~/src/assets/svgs/CalendarIcon';
@@ -37,8 +36,6 @@ import { useFlightStore } from '~/src/store/useFlightStore';
 import { searchFlights } from '~/src/services/flightSearchService';
 
 export default function HomeScreen() {
-  // const [departureDate, setDepartureDate] = useState<Date | null>(null);
-  // const [returnDate, setReturnDate] = useState<Date | null>(null);
   const [isFromPressed, setIsFromPressed] = useState(false);
   const [isOneWay, setIsOneWay] = useState(true);
   const [serchingFlights, setSearchingFlight] = useState(false);
@@ -57,7 +54,6 @@ export default function HomeScreen() {
     setNoOfPassengers,
     noOfPassengers,
   } = useFlightStore();
-  // const [noOfPassengers, setNoOfPassengers] = useState('1');
 
   const handleFlightSearch = async () => {
     if (!from || !to || !departureDate) {
@@ -78,9 +74,6 @@ export default function HomeScreen() {
         returnDate: returnDate ? returnDate.toISOString().split('T')[0] : undefined,
       });
 
-      console.log('================session====================');
-      console.log(sessionId);
-      console.log('====================================');
       if (sessionId) {
         setSessionId(sessionId);
         router.navigate('/FlightSearch');

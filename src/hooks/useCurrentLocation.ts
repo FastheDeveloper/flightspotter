@@ -18,9 +18,7 @@ export const useCurrentLocation = () => {
             }
 
             const loc = await Location.getCurrentPositionAsync({});
-            console.log('====================================');
-            console.log(loc);
-            console.log('====================================');
+
             setLocation({
                 lat: loc.coords.latitude,
                 lng: loc.coords.longitude,

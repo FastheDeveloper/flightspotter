@@ -1,17 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Image, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, router } from 'expo-router';
 import { AntDesign } from '@expo/vector-icons';
 
 import AppText from '../components/AppText/AppText';
-import { Divider } from '../components/Divider/Divider';
 import PaperPlane from '../assets/svgs/PaperPlane';
 import ArrowLeftIcon from '../assets/svgs/ArrowLeftIcon';
 import { APP_COLOR } from '../constants/Colors';
 import { useFlightStore } from '../store/useFlightStore';
 import { fetchIncompleteSearch } from '../services/fetchIncompleteFlight';
-// import { fetchIncompleteSearch } from '../services/fetchIncompleteSearch';
 import { Skeleton } from '@rneui/themed';
 
 const FlightSearch = () => {
@@ -45,9 +43,6 @@ const FlightSearch = () => {
     }, [sessionId])
   );
 
-  console.log('====================================');
-  console.log(sessionId);
-  console.log('====================================');
   return (
     <SafeAreaView className="bg-APP_BACKGROUND flex-1 px-4 py-6">
       <ScrollView showsVerticalScrollIndicator={false}>

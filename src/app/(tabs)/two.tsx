@@ -1,17 +1,12 @@
 import { AntDesign } from '@expo/vector-icons';
-import { router, Stack } from 'expo-router';
+import { router } from 'expo-router';
 
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ArrowLeftIcon from '~/src/assets/svgs/ArrowLeftIcon';
-import CaretDown from '~/src/assets/svgs/CaretDown';
-import PaperPlane from '~/src/assets/svgs/PaperPlane';
 import AppText from '~/src/components/AppText/AppText';
 import { Divider } from '~/src/components/Divider/Divider';
 import Footer from '~/src/components/Footer/Footer';
-
-import { ScreenContent } from '~/src/components/ScreenContent';
-import { APP_COLOR } from '~/src/constants/Colors';
 import { useAuth } from '~/src/contexts/AuthContext';
 import { logout } from '~/src/utils/logout';
 

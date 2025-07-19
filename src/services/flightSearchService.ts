@@ -32,8 +32,7 @@ export const searchFlights = async ({
         params.append('returnDate', returnDate);
     }
 
-    // ✅ Log the final query string
-    console.log('🔍 Flight Search Params:', params.toString());
+
 
     try {
         const response = await fetch(
@@ -47,9 +46,7 @@ export const searchFlights = async ({
         );
 
         const text = await response.text(); // read as plain text
-        console.log('====================================');
-        console.log(text);
-        console.log('====================================');
+
         let json;
 
         try {

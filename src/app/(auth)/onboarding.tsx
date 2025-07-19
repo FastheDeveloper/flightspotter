@@ -1,7 +1,6 @@
-import React from 'react';
 import { View, Image, Dimensions, ScrollView } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { RelativePathString, router } from 'expo-router';
+import { router } from 'expo-router';
 
 import AppText from '~/src/components/AppText/AppText';
 import AppButton from '~/src/components/BaseButton';

@@ -1,5 +1,5 @@
-import { StyleSheet, View, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { StyleSheet, View, FlatList, TouchableOpacity } from 'react-native';
+import { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CloseIcon from '../assets/svgs/Closeicon';
 import AppText from '../components/AppText/AppText';
@@ -56,7 +56,7 @@ const AirportSearch = () => {
       skyId: airport.skyId,
       entityId: airport.entityId,
     };
-
+    setResults([]);
     if (step === 'from') {
       setFrom(formatted);
       setQuery('');
@@ -106,12 +106,12 @@ const AirportSearch = () => {
           <CloseIcon width={16} height={13} />
         </TouchableOpacity>
         <View>
-          <AppText header className="text-sm text-gray-400">
-            {step === 'from' ? 'Flying From' : 'Flying To'}
+          <AppText header className="text-lg ">
+            {step === 'from' ? 'Departure' : 'Destination'}
           </AppText>
-          <AppText className="text-PRIMARY_COLOR font-POPPINS_SEMIBOLD text-lg">
+          {/* <AppText className="text-PRIMARY_COLOR font-POPPINS_SEMIBOLD text-lg">
             {step === 'from' ? from?.skyId || '' : to?.skyId || ''}
-          </AppText>
+          </AppText> */}
         </View>
         <View className="bg-SECONDARY_COLOR rounded-3xl border border-gray-300 p-2">
           <PaperPlane width={24} height={24} color={APP_COLOR.PRIMARY_COLOR} />

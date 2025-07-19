@@ -12,7 +12,9 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import Toast, { BaseToast, BaseToastProps, ErrorToast } from 'react-native-toast-message';
 
 import { AuthContextProvider } from '../contexts/AuthContext';
+import { LogBox } from 'react-native';
 
+LogBox.ignoreAllLogs(true);
 SplashScreen.setOptions({
   duration: 600,
   fade: true,

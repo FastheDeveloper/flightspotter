@@ -82,9 +82,7 @@ export const useSignUpForm = () => {
                 text1: 'Sign Up Successful',
                 text2: 'Welcome aboard!',
             });
-            console.log('====================================');
-            console.log(data);
-            console.log('====================================');
+
 
             if (data.session) {
                 await saveSession(data); // ✅ Save full session JSON
