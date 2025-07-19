@@ -1,6 +1,14 @@
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Image, ImageBackground, SafeAreaView, ScrollView, View } from 'react-native';
+import {
+  Alert,
+  Image,
+  ImageBackground,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  View,
+} from 'react-native';
 
 import AppText from '~/src/components/AppText/AppText';
 import AppButton from '~/src/components/BaseButton';
@@ -32,6 +40,7 @@ export default function HomeScreen() {
   const [departureDate, setDepartureDate] = useState<Date | null>(null);
   const [returnDate, setReturnDate] = useState<Date | null>(null);
   const [isFromPressed, setIsFromPressed] = useState(false);
+  const [isOneWay, setIsOneWay] = useState(true);
 
   const { location, errorMsg } = useCurrentLocation();
   const { place } = useReverseGeocoding(location?.lat ?? null, location?.lng ?? null);
@@ -66,24 +75,28 @@ export default function HomeScreen() {
           <AppText className="font-POPPINS_SEMIBOLD mt-4 text-2xl">Where are you</AppText>
           <AppText className="font-POPPINS_SEMIBOLD mb-4 text-2xl">taking a flight to?</AppText>
 
-          <AppInput
-            placeholder="City or Airport"
-            value={from}
-            onChangeText={setFrom}
-            onFocus={() => setIsFromPressed(true)}
-            onBlur={() => setIsFromPressed(false)}
-            style={{
-              backgroundColor: isFromPressed ? '#ffffff' : '#ffffff80',
-              borderColor: APP_COLOR.PRIMARY_COLOR,
-            }}
-            placeholderTextColor={APP_COLOR.PRIMARY_COLOR}
-          />
-
+          <Pressable onPress={() => router.navigate('/AirportSearch')}>
+            <AppInput
+              placeholder="City or Airport"
+              value={from}
+              onChangeText={setFrom}
+              onFocus={() => setIsFromPressed(true)}
+              onBlur={() => setIsFromPressed(false)}
+              style={{
+                backgroundColor: isFromPressed ? '#ffffff' : '#ffffff80',
+                borderColor: APP_COLOR.PRIMARY_COLOR,
+              }}
+              placeholderTextColor={APP_COLOR.PRIMARY_COLOR}
+              disabled
+            />
+          </Pressable>
           <View className="mt-4 flex-row justify-between">
             <AppButton
               label="One Way"
-              leftIcon={<ArrowRightIcon color="white" />}
+              leftIcon={<ArrowRightIcon color={isOneWay ? 'white' : APP_COLOR.PRIMARY_COLOR} />}
               className="w-[45%] rounded-3xl"
+              variant={isOneWay ? 'primary' : 'secondary'}
+              onPress={() => setIsOneWay(true)}
             />
             <AppButton
               label="Round Trip"
@@ -93,7 +106,8 @@ export default function HomeScreen() {
                 </View>
               }
               className="w-[45%] rounded-3xl"
-              variant="secondary"
+              variant={!isOneWay ? 'primary' : 'secondary'}
+              onPress={() => setIsOneWay(false)}
             />
           </View>
         </ImageBackground>
@@ -142,7 +156,7 @@ export default function HomeScreen() {
                 <FlightDatePicker
                   datePickerProps={{ mode: 'single' }}
                   onChange={(selected) => {
-                    if (selected.mode === 'single') setReturnDate(selected.date);
+                    if (selected.mode === 'single') setDepartureDate(selected.date);
                   }}
                   inputProps={{ label: 'Date' }}
                 />
@@ -171,6 +185,25 @@ export default function HomeScreen() {
               </View>
             </View>
           </View>
+          {!isOneWay && (
+            <>
+              <Divider height={15} />
+              <View className="h-16 flex-row items-center gap-4 rounded-lg border border-gray-300 bg-white px-4">
+                <View className="bg-SECONDARY_COLOR my-2 rounded-lg p-2">
+                  <SmallCalendar color={APP_COLOR.PRIMARY_COLOR} width={16} height={16} />
+                </View>
+                <View className="mt-6">
+                  <FlightDatePicker
+                    datePickerProps={{ mode: 'single' }}
+                    onChange={(selected) => {
+                      if (selected.mode === 'single') setReturnDate(selected.date);
+                    }}
+                    inputProps={{ label: 'Return Date' }}
+                  />
+                </View>
+              </View>
+            </>
+          )}
 
           <AppButton
             label="Find A Flight"
