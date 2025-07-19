@@ -1,246 +1,182 @@
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Image, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import ArrowLeftIcon from '../assets/svgs/ArrowLeftIcon';
+import { useFocusEffect, router } from 'expo-router';
 import { AntDesign } from '@expo/vector-icons';
+
 import AppText from '../components/AppText/AppText';
 import { Divider } from '../components/Divider/Divider';
 import PaperPlane from '../assets/svgs/PaperPlane';
+import ArrowLeftIcon from '../assets/svgs/ArrowLeftIcon';
 import { APP_COLOR } from '../constants/Colors';
+import { useFlightStore } from '../store/useFlightStore';
+import { fetchIncompleteSearch } from '../services/fetchIncompleteFlight';
+// import { fetchIncompleteSearch } from '../services/fetchIncompleteSearch';
+import { Skeleton } from '@rneui/themed';
 
 const FlightSearch = () => {
+  const { from, to, sessionId, departureDate, returnDate } = useFlightStore();
+  const [flights, setFlights] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const formatDate = (date: Date | null) =>
+    date
+      ? `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
+          .toString()
+          .padStart(2, '0')}/${date.getFullYear()}`
+      : '';
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadFlights = async () => {
+        if (!sessionId) return;
+        try {
+          setLoading(true);
+          const data = await fetchIncompleteSearch(sessionId);
+          setFlights(data);
+        } catch (err) {
+          console.error('Error loading flight results:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadFlights();
+    }, [sessionId])
+  );
+
+  console.log('====================================');
+  console.log(sessionId);
+  console.log('====================================');
   return (
     <SafeAreaView className="bg-APP_BACKGROUND flex-1 px-4 py-6">
-      <ScrollView contentContainerClassName="flex-grow " showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View className="mb-6 flex-row items-center justify-between">
-          {/* Back Button */}
           <View className="rounded-3xl border border-gray-300 bg-white p-3">
             <ArrowLeftIcon width={16} height={16} onPress={() => router.back()} color="black" />
           </View>
-
-          {/* Flight Info */}
           <View className="mx-4 flex-1 items-center">
-            <AppText className="font-POPPINS_SEMIBOLD text-2xl">JFK - LOS</AppText>
-            <AppText className="text-xs  " placeholder>
-              May 11, 2023 - May 23, 2023
+            <AppText className="font-POPPINS_SEMIBOLD text-2xl">
+              {from?.skyId} - {to?.skyId}
+            </AppText>
+            <AppText className="text-xs" placeholder>
+              {formatDate(departureDate)} {returnDate ? `- ${formatDate(returnDate)}` : ''}
             </AppText>
           </View>
-
-          {/* Filter Icon */}
           <View className="rounded-3xl border border-gray-300 bg-white p-3">
             <AntDesign name="filter" size={16} color="black" />
           </View>
         </View>
 
-        <View className="rounded-xl border border-gray-300 bg-white p-4">
-          <View className="flex-row justify-between">
-            <AppText className="bg-SECONDARY_COLOR text-PRIMARY_COLOR rounded-xl p-2 text-lg">
-              Economy
-            </AppText>
-            <AppText className="  text-PRIMARY_COLOR rounded-xl p-2 text-lg">$160 - $200</AppText>
-          </View>
-          <Divider height={15} />
-          <Divider height={0.5} bgColor="gray" />
-          <Divider height={15} />
-          <Pressable onPress={() => router.navigate('/FlightDetails')}>
-            <View className=" flex-row items-center justify-between ">
-              <View className="flex-row items-center gap-4">
-                <Image
-                  source={{ uri: 'https://logos.skyscnr.com/images/airlines/favicon/A_.png' }}
-                  width={60}
-                  height={60}
-                />
+        {/* Flight Results */}
+        {loading ? (
+          // Render 3 skeleton placeholders
+          [1, 2, 3].map((_, index) => (
+            <View key={index} className="mb-6 rounded-xl border border-gray-300 bg-white p-4">
+              {/* Top Row */}
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center gap-4">
+                  <Skeleton circle width={60} height={60} />
+                  <View>
+                    <Skeleton width={80} height={20} style={{ marginBottom: 4 }} />
+                    <Skeleton width={60} height={16} />
+                  </View>
+                </View>
+                <Skeleton width={50} height={20} />
+              </View>
+
+              {/* Flight Details Row */}
+              <View className="mt-4 flex-row items-center justify-between">
                 <View>
-                  <AppText>Lion air</AppText>
-                  <AppText>JT-7390</AppText>
+                  <Skeleton width={40} height={30} style={{ marginBottom: 4 }} />
+                  <Skeleton width={60} height={16} />
+                  <Skeleton width={50} height={16} />
+                </View>
+                <View className="items-center">
+                  <Skeleton width={24} height={24} style={{ borderRadius: 12 }} />
+                  <Skeleton width={60} height={16} style={{ marginTop: 4 }} />
+                </View>
+                <View>
+                  <Skeleton width={40} height={30} style={{ marginBottom: 4 }} />
+                  <Skeleton width={60} height={16} />
+                  <Skeleton width={50} height={16} />
                 </View>
               </View>
-
-              <AppText className="  text-PRIMARY_COLOR rounded-xl p-2 text-lg">$200</AppText>
             </View>
+          ))
+        ) : (
+          <>
+            {flights.map((flight) => {
+              const leg = flight.legs[0];
+              const airline = leg.carriers.marketing[0];
+              const segment = leg.segments[0];
 
-            <View className="flex-row items-center justify-between">
-              <View>
-                <AppText className="text-PRIMARY_COLOR font-POPPINS_MEDIUM text-3xl">MCO</AppText>
-                <AppText className="text-sm text-gray-700">Orlando</AppText>
-                <Divider height={7} />
+              return (
+                <Pressable
+                  key={flight.id}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/FlightDetails',
+                      params: { flight: JSON.stringify(flight) }, // Pass serialized flight
+                    })
+                  }
+                  className="mb-6 rounded-xl border border-gray-300 bg-white p-4">
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center gap-4">
+                      <Image source={{ uri: airline.logoUrl }} width={60} height={60} />
+                      <View>
+                        <AppText>{airline.name}</AppText>
+                        <AppText>{segment.flightNumber}</AppText>
+                      </View>
+                    </View>
+                    <AppText className="text-PRIMARY_COLOR text-lg">
+                      {flight.price.formatted}
+                    </AppText>
+                  </View>
 
-                <AppText className="text-xs text-gray-700">5:34 pm</AppText>
-              </View>
+                  <View className="mt-4 flex-row items-center justify-between">
+                    <View>
+                      <AppText className="text-PRIMARY_COLOR text-3xl">
+                        {leg.origin.displayCode}
+                      </AppText>
+                      <AppText className="text-xs text-gray-700">{leg.origin.city}</AppText>
+                      <AppText className="text-xs text-gray-700">
+                        {new Date(leg.departure).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </AppText>
+                    </View>
 
-              <View className="items-center">
-                <PaperPlane width={24} height={24} color={APP_COLOR.PRIMARY_COLOR} />
-                <Divider height={3} />
-                <AppText className="text-xs text-gray-700">1h43m</AppText>
-                <Divider height={3} />
-                <AppText className="text-xs text-gray-700">One Trip • 3 Seats</AppText>
-              </View>
+                    <View className="items-center">
+                      <PaperPlane width={24} height={24} color={APP_COLOR.PRIMARY_COLOR} />
+                      <AppText className="text-xs text-gray-700">
+                        {Math.floor(leg.durationInMinutes / 60)}h{leg.durationInMinutes % 60}m
+                      </AppText>
+                    </View>
 
-              <View>
-                <AppText className="text-PRIMARY_COLOR font-POPPINS_MEDIUM text-3xl">LAX</AppText>
-
-                <Divider height={7} />
-
-                <AppText className="text-xs text-gray-700">10:32 am</AppText>
-              </View>
-            </View>
-          </Pressable>
-          <Divider height={15} />
-
-          <Divider height={0.5} bgColor="gray" />
-          <Divider height={15} />
-          <View>
-            <View className=" flex-row items-center justify-between ">
-              <View className="flex-row items-center gap-4">
-                <Image
-                  source={{ uri: 'https://logos.skyscnr.com/images/airlines/favicon/%7ED.png' }}
-                  width={60}
-                  height={60}
-                />
-                <View>
-                  <AppText>CitiLink</AppText>
-                  <AppText>JT-7390</AppText>
-                </View>
-              </View>
-
-              <AppText className="  text-PRIMARY_COLOR rounded-xl p-2 text-lg">$200</AppText>
-            </View>
-
-            <View className="flex-row items-center justify-between">
-              <View>
-                <AppText className="text-PRIMARY_COLOR font-POPPINS_MEDIUM text-3xl">MCO</AppText>
-                <AppText className="text-sm text-gray-700">Orlando</AppText>
-                <Divider height={7} />
-
-                <AppText className="text-xs text-gray-700">5:34 pm</AppText>
-              </View>
-
-              <View className="items-center">
-                <PaperPlane width={24} height={24} color={APP_COLOR.PRIMARY_COLOR} />
-                <Divider height={3} />
-                <AppText className="text-xs text-gray-700">1h43m</AppText>
-                <Divider height={3} />
-                <AppText className="text-xs text-gray-700">One Trip • 3 Seats</AppText>
-              </View>
-
-              <View>
-                <AppText className="text-PRIMARY_COLOR font-POPPINS_MEDIUM text-3xl">LAX</AppText>
-
-                <Divider height={7} />
-
-                <AppText className="text-xs text-gray-700">10:32 am</AppText>
-              </View>
-            </View>
-          </View>
-        </View>
-        <Divider height={30} />
-        <View className="rounded-xl border border-gray-300 bg-white p-4">
-          <View className="flex-row justify-between">
-            <AppText className="bg-PRIMARY_COLOR text-SECONDARY_COLOR rounded-xl p-2 text-lg">
-              Business Class
-            </AppText>
-            <AppText className="  text-PRIMARY_COLOR rounded-xl p-2 text-lg">$160 - $200</AppText>
-          </View>
-          <Divider height={15} />
-          <Divider height={0.5} bgColor="gray" />
-          <Divider height={15} />
-          <View className=" flex-row items-center justify-between ">
-            <View className="flex-row items-center gap-4">
-              <Image
-                source={{ uri: 'https://logos.skyscnr.com/images/airlines/favicon/A_.png' }}
-                width={60}
-                height={60}
-              />
-              <View>
-                <AppText>Lion air</AppText>
-                <AppText>JT-7390</AppText>
-              </View>
-            </View>
-
-            <AppText className="  text-PRIMARY_COLOR rounded-xl p-2 text-lg">$200</AppText>
-          </View>
-
-          <View className="flex-row items-center justify-between">
-            <View>
-              <AppText className="text-PRIMARY_COLOR font-POPPINS_MEDIUM text-3xl">MCO</AppText>
-              <AppText className="text-sm text-gray-700">Orlando</AppText>
-              <Divider height={7} />
-
-              <AppText className="text-xs text-gray-700">5:34 pm</AppText>
-            </View>
-
-            <View className="items-center">
-              <PaperPlane width={24} height={24} color={APP_COLOR.PRIMARY_COLOR} />
-              <Divider height={3} />
-              <AppText className="text-xs text-gray-700">1h43m</AppText>
-              <Divider height={3} />
-              <AppText className="text-xs text-gray-700">One Trip • 3 Seats</AppText>
-            </View>
-
-            <View>
-              <AppText className="text-PRIMARY_COLOR font-POPPINS_MEDIUM text-3xl">LAX</AppText>
-
-              <Divider height={7} />
-
-              <AppText className="text-xs text-gray-700">10:32 am</AppText>
-            </View>
-          </View>
-          <Divider height={15} />
-
-          <Divider height={0.5} bgColor="gray" />
-          <Divider height={15} />
-          <View>
-            <View className=" flex-row items-center justify-between ">
-              <View className="flex-row items-center gap-4">
-                <Image
-                  source={{ uri: 'https://logos.skyscnr.com/images/airlines/favicon/%7ED.png' }}
-                  width={60}
-                  height={60}
-                />
-                <View>
-                  <AppText>CitiLink</AppText>
-                  <AppText>JT-7390</AppText>
-                </View>
-              </View>
-
-              <AppText className="  text-PRIMARY_COLOR rounded-xl p-2 text-lg">$200</AppText>
-            </View>
-
-            <View className="flex-row items-center justify-between">
-              <View>
-                <AppText className="text-PRIMARY_COLOR font-POPPINS_MEDIUM text-3xl">MCO</AppText>
-                <AppText className="text-sm text-gray-700">Orlando</AppText>
-                <Divider height={7} />
-
-                <AppText className="text-xs text-gray-700">5:34 pm</AppText>
-              </View>
-
-              <View className="items-center">
-                <PaperPlane width={24} height={24} color={APP_COLOR.PRIMARY_COLOR} />
-                <Divider height={3} />
-                <AppText className="text-xs text-gray-700">1h43m</AppText>
-                <Divider height={3} />
-                <AppText className="text-xs text-gray-700">One Trip • 3 Seats</AppText>
-              </View>
-
-              <View>
-                <AppText className="text-PRIMARY_COLOR font-POPPINS_MEDIUM text-3xl">LAX</AppText>
-
-                <Divider height={7} />
-
-                <AppText className="text-xs text-gray-700">10:32 am</AppText>
-              </View>
-            </View>
-          </View>
-        </View>
-        <Divider height={30} />
+                    <View>
+                      <AppText className="text-PRIMARY_COLOR text-3xl">
+                        {leg.destination.displayCode}
+                      </AppText>
+                      <AppText className="text-xs text-gray-700">{leg.destination.city}</AppText>
+                      <AppText className="text-xs text-gray-700">
+                        {new Date(leg.arrival).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </AppText>
+                    </View>
+                  </View>
+                </Pressable>
+              );
+            })}
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 export default FlightSearch;
-
-const styles = StyleSheet.create({});

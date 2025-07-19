@@ -33,29 +33,65 @@ import Footer from '~/src/components/Footer/Footer';
 import CaretDown from '~/src/assets/svgs/CaretDown';
 import { Divider } from '~/src/components/Divider/Divider';
 import { APP_COLOR } from '~/src/constants/Colors';
+import { useFlightStore } from '~/src/store/useFlightStore';
+import { searchFlights } from '~/src/services/flightSearchService';
 
 export default function HomeScreen() {
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
-  const [departureDate, setDepartureDate] = useState<Date | null>(null);
-  const [returnDate, setReturnDate] = useState<Date | null>(null);
+  // const [departureDate, setDepartureDate] = useState<Date | null>(null);
+  // const [returnDate, setReturnDate] = useState<Date | null>(null);
   const [isFromPressed, setIsFromPressed] = useState(false);
   const [isOneWay, setIsOneWay] = useState(true);
   const [serchingFlights, setSearchingFlight] = useState(false);
   const { location, errorMsg } = useCurrentLocation();
   const { place } = useReverseGeocoding(location?.lat ?? null, location?.lng ?? null);
+  const {
+    from,
+    to,
+    setFrom,
+    setTo,
+    setSessionId,
+    setDepartureDate,
+    setReturnDate,
+    departureDate,
+    returnDate,
+    setNoOfPassengers,
+    noOfPassengers,
+  } = useFlightStore();
+  // const [noOfPassengers, setNoOfPassengers] = useState('1');
 
-  const handleFlightSearch = () => {
-    setSearchingFlight(true);
-    // if (!from || !to || !departureDate) {
-    //   Alert.alert('Missing Fields', 'Please fill in all required fields.');
-    //   return;
-    // }
-    setTimeout(() => {
+  const handleFlightSearch = async () => {
+    if (!from || !to || !departureDate) {
+      Alert.alert('Missing Fields', 'Please fill in all required fields.');
+      return;
+    }
+
+    try {
+      setSearchingFlight(true);
+
+      const sessionId = await searchFlights({
+        originSkyId: from.skyId,
+        destinationSkyId: to.skyId,
+        originEntityId: from.entityId,
+        destinationEntityId: to.entityId,
+        adults: Number(noOfPassengers),
+        date: departureDate.toISOString().split('T')[0],
+        returnDate: returnDate ? returnDate.toISOString().split('T')[0] : undefined,
+      });
+
+      console.log('================session====================');
+      console.log(sessionId);
+      console.log('====================================');
+      if (sessionId) {
+        setSessionId(sessionId);
+        router.navigate('/FlightSearch');
+      } else {
+        Alert.alert('No Flights Found', 'Try adjusting your search criteria.');
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Unable to search for flights.');
+    } finally {
       setSearchingFlight(false);
-      router.navigate('/FlightSearch');
-    }, 3000);
-    console.log('Searching flights with:', { from, to, departureDate, returnDate });
+    }
   };
 
   return (
@@ -78,13 +114,13 @@ export default function HomeScreen() {
           </View>
 
           <AppText className="font-POPPINS_SEMIBOLD mt-4 text-2xl">Where are you</AppText>
-          <AppText className="font-POPPINS_SEMIBOLD mb-4 text-2xl">taking a flight to?</AppText>
+          <AppText className="font-POPPINS_SEMIBOLD mb-4 text-2xl">taking a flight from?</AppText>
 
           <Pressable onPress={() => router.navigate('/AirportSearch')}>
             <AppInput
               placeholder="City or Airport"
-              value={from}
-              onChangeText={setFrom}
+              value={from ? `${from?.title} - ${from?.skyId}` : ''}
+              // onChangeText={setFrom}
               onFocus={() => setIsFromPressed(true)}
               onBlur={() => setIsFromPressed(false)}
               style={{
@@ -129,7 +165,9 @@ export default function HomeScreen() {
                   <AppText placeholder className="mb-[-4]">
                     From
                   </AppText>
-                  <AppText>Orlando Bloom</AppText>
+                  <AppText>
+                    {from?.title} - {from?.skyId}
+                  </AppText>
                 </View>
               </View>
 
@@ -141,7 +179,9 @@ export default function HomeScreen() {
                   <AppText placeholder className="mb-[-4]">
                     To
                   </AppText>
-                  <AppText>Los Angeles</AppText>
+                  <AppText>
+                    {to?.title} - {to?.skyId}
+                  </AppText>
                 </View>
               </View>
             </View>
@@ -176,8 +216,8 @@ export default function HomeScreen() {
                 <AppInput
                   label="No of Passengers"
                   placeholder="0"
-                  value={from}
-                  onChangeText={setFrom}
+                  value={noOfPassengers.toString()}
+                  onChangeText={setNoOfPassengers}
                   keyboardType="numeric"
                   labelClassname="font-POPPINS_MEDIUM text-gray-400 text-sm"
                   style={{

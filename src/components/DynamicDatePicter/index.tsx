@@ -44,7 +44,8 @@ export default function FlightDatePicker({
   onChange,
   inputProps,
 }: DatePickerProps) {
-  const initialDate = convertToDate(datePickerProps?.date ?? new Date());
+  const initialDate = datePickerProps?.date ? convertToDate(datePickerProps.date) : null;
+
   const intialDates = datePickerProps?.dates?.map(convertToDate) || [new Date()];
   const initialRangeDate = {
     startDate: datePickerProps?.startDate ? convertToDate(datePickerProps.startDate) : null,
@@ -54,7 +55,7 @@ export default function FlightDatePicker({
   const [showInitialPlaceholder, setShowInitialPlaceholder] = useState(
     inputProps?.showInitialPlaceholder || false
   );
-  const [selectedDate, setSelectedDate] = useState<Date>(initialDate);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(initialDate);
   const [selectedDates, setSelectedDates] = useState<Date[]>(intialDates);
   const [selectedRangeDate, setSelectedRangeDate] = useState(initialRangeDate);
   const [modalVisible, setModalVisible] = useState(false);
@@ -63,16 +64,20 @@ export default function FlightDatePicker({
 
   const formatDate = () => {
     if (showInitialPlaceholder) return undefined;
-    if (datePickerProps?.mode === 'multiple')
-      return selectedDates?.map(formatSingleDate).join(', ');
+
+    if (datePickerProps?.mode === 'multiple') {
+      return selectedDates.length ? selectedDates.map(formatSingleDate).join(', ') : '';
+    }
+
     if (datePickerProps?.mode === 'range') {
       const { startDate, endDate } = selectedRangeDate;
+      if (!startDate) return ''; // ⬅️ return empty if no date
       if (startDate && endDate)
         return `${formatSingleDate(startDate)} - ${formatSingleDate(endDate)}`;
-      if (startDate) return `${formatSingleDate(startDate)} - Select end date`;
-      return '';
+      return `${formatSingleDate(startDate)} - Select end date`;
     }
-    return formatSingleDate(selectedDate);
+
+    return selectedDate ? formatSingleDate(selectedDate) : ''; // ⬅️ handle single mode
   };
 
   const formatSingleDate = (date: Date) => {
@@ -182,7 +187,6 @@ export default function FlightDatePicker({
                 header: {
                   backgroundColor: '#D8F1FF',
                 },
-
                 button_next: {
                   backgroundColor: '#A6A6A6',
                 },
@@ -207,7 +211,7 @@ export default function FlightDatePicker({
               }}
               firstDayOfWeek={datePickerProps?.firstDayOfWeek ?? 1}
               displayFullDays={datePickerProps?.displayFullDays ?? true}
-              date={selectedDate}
+              date={selectedDate ?? new Date()} // ✅ Ensure valid Date
               dates={selectedDates}
               startDate={selectedRangeDate.startDate}
               endDate={selectedRangeDate.endDate}
